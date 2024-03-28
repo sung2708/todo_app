@@ -5,6 +5,14 @@
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 
+<form method="POST">
+    {% csrf_token %}
+    {{form.title}}
+    <input type="submit" name="" id="">
+</form>
 
-<a name="" id="" class="btn btn-primary" href="#" role="button">Hello World</a>
-<p>hello world</p>
+{% for task in task %}
+<h4>{{task.title}}</h4>
+<a href="{% url 'update' task.id %}">Update</a>
+<a href="{% url 'delete' task.id %}">Delete</a>
+{% endfor %}
