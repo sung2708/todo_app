@@ -5,14 +5,38 @@
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 
+
+
+<div id="wrapper">
+    <div id="main-content">
+        <div id="sidebar">
+            sidebar
+        </div>
+        <div id="content">
+            {% for task in task %}
+            <div class="task">
+                <div>{{task.title}}</div>
+                <a href="{% url 'update' task.id %}">Update</a>
+                <a href="{% url 'delete' task.id %}">Delete</a>
+            </div>
+            {% endfor %}
+        </div>
+        <!--<div id="task-form">
+            task-form
+        </div>-->
+    </div>
+</div>
+
+
+<button id="load-html-button">Load HTML</button>
+    <div id="html-content"></div>
+
+    <script src="{% static 'todo/js/home.js' %}"></script>
+
 <form method="POST">
     {% csrf_token %}
     {{form.title}}
     <input type="submit" name="" id="">
 </form>
 
-{% for task in task %}
-<h4>{{task.title}}</h4>
-<a href="{% url 'update' task.id %}">Update</a>
-<a href="{% url 'delete' task.id %}">Delete</a>
-{% endfor %}
+

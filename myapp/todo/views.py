@@ -1,19 +1,20 @@
 from django.shortcuts import render, redirect
 
 # Create your views here.
-from .models import Task
-from .forms import TaskForm
+from .models import Task, User
+from .forms import TaskForm, UserForm
 
 def index(request):
     task = Task.objects.all()
     form = TaskForm()
-
+    user = User.objects.get(id=1)
     if request.method == 'POST':
+        form = TaskForm(request.POST)
         if form.is_valid():
             form.save()
         return redirect('/')
     
-    context = {'task': task, 'form': form}
+    context = {'task': task, 'form': form, 'user': user}
     return render(request, 'todo/home.html', context)
 
 def updateTask(request, pk):
