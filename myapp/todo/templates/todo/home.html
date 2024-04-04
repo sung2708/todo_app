@@ -13,11 +13,13 @@
             sidebar
         </div>
         <div id="content">
+            
             {% for task in task %}
-            <div class="task">
-                <div>{{task.title}}</div>
-                <a href="{% url 'update' task.id %}">Update</a>
-                <a href="{% url 'delete' task.id %}">Delete</a>
+            <div class="d-grid">
+                <a id="task" class="btn btn-light mx-5 my-1 " type="button"  href="{% url 'detail' task.id %}">{{task.title}}</a>
+                <form action="POST">
+                    <input type="checkbox">
+                </form>
             </div>
             {% endfor %}
         </div>
@@ -28,10 +30,6 @@
 </div>
 
 
-<button id="load-html-button">Load HTML</button>
-    <div id="html-content"></div>
-
-    <script src="{% static 'todo/js/home.js' %}"></script>
 
 <form method="POST">
     {% csrf_token %}

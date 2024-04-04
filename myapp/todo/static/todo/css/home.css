@@ -29,11 +29,6 @@ html, body {
     flex-basis: 85%;
 }
 
-.task{
-    background-color: whitesmoke;
-    margin: 5px;
-}
-
-.task:hover{
-    background-color: white
+#task:hover{
+    background-color: #ececec;
 }
