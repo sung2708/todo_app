@@ -4,3 +4,9 @@
     <input type="submit" value="Yes">
     <a href="{% url 'index' %}">No</a>
 </form>
+
+<form method="POST" action="">
+    {% csrf_token %}
+    {{form.title}}
+    <input type="submit">
+</form>

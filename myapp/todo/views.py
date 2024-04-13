@@ -1,40 +1,35 @@
 from django.shortcuts import render, redirect
 
 # Create your views here.
-from .models import Task
-from .forms import TaskForm
+from .models import Task, User
+from .forms import TaskForm, UserForm
 
 def index(request):
     task = Task.objects.all()
     form = TaskForm()
-
+    user = User.objects.get(id=1)
     if request.method == 'POST':
+        form = TaskForm(request.POST)
         if form.is_valid():
             form.save()
         return redirect('/')
     
-    context = {'task': task, 'form': form}
+    context = {'task': task, 'form': form, 'user': user}
     return render(request, 'todo/home.html', context)
 
-def updateTask(request, pk):
-    task = Task.objects.get(id=pk)
-    form = TaskForm(instance=task)
+def detail(request, pk):
+    item = Task.objects.get(id=pk)
+    form = TaskForm(instance=item)
 
     if request.method == 'POST':
-        form = TaskForm(request.POST, instance=task)
+        form = TaskForm(request.POST, instance=item)
         if form.is_valid():
             form.save()
             return redirect('/')
-    
-    context = {'form': form}
-    return render(request, 'todo/update.html', context)
-
-def deleteTask(request, pk):
-    item = Task.objects.get(id=pk)
 
     if request.method == 'POST':
         item.delete()
         return redirect('/')
     
-    context = {'item':item}   
-    return render(request, 'todo/delete.html', context)
+    context = {'item':item, 'form': form} 
+    return render(request, 'todo/detail.html', context)

@@ -5,14 +5,36 @@
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 
+
+
+<div id="wrapper">
+    <div id="main-content">
+        <div id="sidebar">
+            sidebar
+        </div>
+        <div id="content">
+            
+            {% for task in task %}
+            <div class="d-grid">
+                <a id="task" class="btn btn-light mx-5 my-1 " type="button"  href="{% url 'detail' task.id %}">{{task.title}}</a>
+                <form action="POST">
+                    <input type="checkbox">
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+        <!--<div id="task-form">
+            task-form
+        </div>-->
+    </div>
+</div>
+
+
+
 <form method="POST">
     {% csrf_token %}
     {{form.title}}
     <input type="submit" name="" id="">
 </form>
 
-{% for task in task %}
-<h4>{{task.title}}</h4>
-<a href="{% url 'update' task.id %}">Update</a>
-<a href="{% url 'delete' task.id %}">Delete</a>
-{% endfor %}
+
