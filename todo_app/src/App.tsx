@@ -1,41 +1,30 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, NavLink, useParams, Navigate } from 'react-router-dom';
-import type { Todo } from './types';
-import { TodoList } from './components/TodoList';
+import { BrowserRouter as Router, useRoutes, NavLink } from 'react-router-dom';
+import { getRoutes } from './routes';
 import { TodoCreateForm } from './components/TodoCreateForm';
+import type { Todo } from './types';
 import './App.css';
 
-interface TodoWrapperProps {
-  todos: Todo[];
-  toggleTodo: (id: string) => void;
-  deleteTodo: (id: string) => void;
-  editTodo: (id: string, newTitle: string) => void;
+interface AppContentProps {
+  todoProps: {
+    todos: Todo[];
+    toggleTodo: (id: string) => void;
+    deleteTodo: (id: string) => void;
+    editTodo: (id: string, title: string) => void;
+  };
 }
 
-const TodoWrapper = ({ todos, toggleTodo, deleteTodo, editTodo }: TodoWrapperProps) => {
-  const { filter } = useParams();
-  const filteredTodos = todos.filter((todo: Todo) => {
-    if (filter === 'completed') return todo.completed;
-    return true;
-  });
-
-  return (
-    <TodoList
-      todos={filteredTodos}
-      toggleTodo={toggleTodo}
-      deleteTodo={deleteTodo}
-      editTodo={editTodo}
-    />
-  );
+const AppContent = ({ todoProps }: AppContentProps) => {
+  const element = useRoutes(getRoutes(todoProps));
+  return element;
 };
 
 function App() {
   const [todos, setTodos] = useState<Todo[]>(() => {
-    const savedTodos = localStorage.getItem('my_todos');
-    return savedTodos ? JSON.parse(savedTodos) : [];
+    const saved = localStorage.getItem('my_todos');
+    return saved ? JSON.parse(saved) : [];
   });
-
-  const [input, setInput] = useState<string>('');
+  const [input, setInput] = useState('');
 
   useEffect(() => {
     localStorage.setItem('my_todos', JSON.stringify(todos));
@@ -43,58 +32,33 @@ function App() {
 
   const addTodo = () => {
     if (!input.trim()) return;
-    const newTodo: Todo = {
-      id: Date.now().toString(),
-      title: input,
-      completed: false,
-      createdAt: Date.now(),
-    }
+    const newTodo: Todo = { id: Date.now().toString(), title: input, completed: false, createdAt: Date.now() };
     setTodos([newTodo, ...todos]);
     setInput('');
   };
 
-  const toggleTodo = (id: string) => {
-    setTodos(todos.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t)));
-  };
+  const toggleTodo = (id: string) => setTodos(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+  const deleteTodo = (id: string) => setTodos(prev => prev.filter(t => t.id !== id));
+  const editTodo = (id: string, title: string) => setTodos(prev => prev.map(t => t.id === id ? { ...t, title } : t));
 
-  const deleteTodo = (id: string) => {
-    setTodos(todos.filter((t) => t.id !== id));
-  };
-
-  const editTodo = (id: string, newTitle: string) => {
-    setTodos(todos.map((t) => (t.id === id ? { ...t, title: newTitle } : t)));
-  };
+  const todoProps = { todos, toggleTodo, deleteTodo, editTodo };
 
   return (
     <Router>
       <div className="container">
-        <h1>My Todo App</h1>
-
-        <TodoCreateForm
-          input={input}
-          onInputChange={(e) => setInput(e.target.value)}
-          onAddTodo={addTodo}
-        />
+        <header>
+          <h1>My Todo App</h1>
+          <TodoCreateForm input={input} onInputChange={(e) => setInput(e.target.value)} onAddTodo={addTodo} />
+        </header>
 
         <nav className="nav-links">
           <NavLink to="/all">All Tasks</NavLink>
           <NavLink to="/completed">Completed</NavLink>
         </nav>
 
-        <Routes>
-          <Route path="/" element={<Navigate to="/all" replace />} />
-          <Route
-            path="/:filter"
-            element={
-              <TodoWrapper
-                todos={todos}
-                toggleTodo={toggleTodo}
-                deleteTodo={deleteTodo}
-                editTodo={editTodo}
-              />
-            }
-          />
-        </Routes>
+        <main>
+          <AppContent todoProps={todoProps} />
+        </main>
       </div>
     </Router>
   );
