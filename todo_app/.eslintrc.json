@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "no-unused-vars": "error",
+    "no-console": "warn",
+    "eqeqeq": "error"
+  },
+  "extends": ["eslint:recommended", "plugin:prettier/recommended"]
+}
