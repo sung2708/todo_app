@@ -1,9 +1,33 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, NavLink, useParams, Navigate } from 'react-router-dom';
 import type { Todo } from './types';
 import { TodoList } from './components/TodoList';
 import { TodoCreateForm } from './components/TodoCreateForm';
 import './App.css';
+
+interface TodoWrapperProps {
+  todos: Todo[];
+  toggleTodo: (id: string) => void;
+  deleteTodo: (id: string) => void;
+  editTodo: (id: string, newTitle: string) => void;
+}
+
+const TodoWrapper = ({ todos, toggleTodo, deleteTodo, editTodo }: TodoWrapperProps) => {
+  const { filter } = useParams();
+  const filteredTodos = todos.filter((todo: Todo) => {
+    if (filter === 'completed') return todo.completed;
+    return true;
+  });
+
+  return (
+    <TodoList
+      todos={filteredTodos}
+      toggleTodo={toggleTodo}
+      deleteTodo={deleteTodo}
+      editTodo={editTodo}
+    />
+  );
+};
 
 function App() {
   const [todos, setTodos] = useState<Todo[]>(() => {
@@ -11,11 +35,12 @@ function App() {
     return savedTodos ? JSON.parse(savedTodos) : [];
   });
 
+  const [input, setInput] = useState<string>('');
+
   useEffect(() => {
     localStorage.setItem('my_todos', JSON.stringify(todos));
   }, [todos]);
 
-  const [input, setInput] = useState<string>('');
   const addTodo = () => {
     if (!input.trim()) return;
     const newTodo: Todo = {
@@ -23,10 +48,10 @@ function App() {
       title: input,
       completed: false,
       createdAt: Date.now(),
-    };
+    }
     setTodos([newTodo, ...todos]);
     setInput('');
-  }
+  };
 
   const toggleTodo = (id: string) => {
     setTodos(todos.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t)));
@@ -50,28 +75,19 @@ function App() {
           onInputChange={(e) => setInput(e.target.value)}
           onAddTodo={addTodo}
         />
+
         <nav className="nav-links">
-          <NavLink to="/" end>All Tasks</NavLink>
+          <NavLink to="/all">All Tasks</NavLink>
           <NavLink to="/completed">Completed</NavLink>
         </nav>
 
         <Routes>
+          <Route path="/" element={<Navigate to="/all" replace />} />
           <Route
-            path="/"
+            path="/:filter"
             element={
-              <TodoList
+              <TodoWrapper
                 todos={todos}
-                toggleTodo={toggleTodo}
-                deleteTodo={deleteTodo}
-                editTodo={editTodo}
-              />
-            }
-          />
-          <Route
-            path="/completed"
-            element={
-              <TodoList
-                todos={todos.filter((t) => t.completed)}
                 toggleTodo={toggleTodo}
                 deleteTodo={deleteTodo}
                 editTodo={editTodo}
